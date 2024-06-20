@@ -27,6 +27,7 @@ const AddBoarding = () => {
     "University of Kelaniya",
     "Rajarata University of Sri Lanka",
     "Sabaragamuwa University of Sri Lanka",
+    "University of Colombo",
   ];
 
   const handleChange = (event) => {
