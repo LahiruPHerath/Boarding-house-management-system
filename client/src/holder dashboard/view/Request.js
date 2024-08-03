@@ -47,6 +47,35 @@ const Request = () => {
     }
   };
 
+  const monthlyPayment = (request) => {
+    if (request.totalPrice === 0) {
+      return (
+        <span className="text-green-500 font-semibold uppercase ">
+          RECEIVED
+        </span>
+      );
+    } else {
+      return (
+        <span className="text-red-500 font-semibold uppercase ">
+          NOT RECEIVED
+        </span>
+      );
+    }
+  };
+
+  const sendPaymentReminder = async (requestId) => {
+    try {
+      const response = await axios.post(
+        `http://localhost:5000/api/request/remind/${requestId}`,
+        {},
+        config
+      );
+      toast.success("Reminder sent successfully");
+    } catch (error) {
+      toast.error("Error sending reminder");
+    }
+  };
+
   return (
     <div className="px-2 lg:px-7 pt-5">
       <ToastContainer />
@@ -75,6 +104,12 @@ const Request = () => {
                 </th>
                 <th scope="col" className="py-3 px-4">
                   Action
+                </th>
+                <th scope="col" className="py-3 px-4">
+                  Monthly Payment
+                </th>
+                <th scope="col" className="py-3 px-4">
+                  Payment Reminder
                 </th>
               </tr>
             </thead>
@@ -117,6 +152,17 @@ const Request = () => {
                       <option value="accept">Accept</option>
                       <option value="reject">Reject</option>
                     </select>
+                  </td>
+                  <td className="py-1 px-4 font-medium whitespace-nowrap">
+                    {monthlyPayment(request)}
+                  </td>
+                  <td className="py-1 px-4 font-medium whitespace-nowrap">
+                    <button
+                      onClick={() => sendPaymentReminder(request._id)}
+                      className="px-2 py-1 bg-blue-500 text-white rounded-md"
+                    >
+                      Send Reminder
+                    </button>
                   </td>
                 </tr>
               ))}
