@@ -10,6 +10,8 @@ const requestRoutes = require("./routes/requestRoute");
 const reviewRoutes = require("./routes/reviewRoutes");
 const visitRoutes = require("./routes/VisitRoute");
 const messageRoutes = require("./routes/messageRoutes");
+const cron = require("node-cron");
+const Request = require("./models/request");
 
 const app = express();
 const server = http.createServer(app);
@@ -63,6 +65,22 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("A user disconnected", socket.id);
   });
+});
+
+// Schedule the task to run at the start of each month
+cron.schedule("0 0 1 * *", async () => {
+  try {
+    const requests = await Request.find({});
+    for (const request of requests) {
+      if (request.pricePerMonth > 0) {
+        request.totalPrice = request.pricePerMonth;
+        await request.save();
+      }
+    }
+    console.log("Monthly prices have been reset");
+  } catch (error) {
+    console.error("Error resetting monthly prices:", error);
+  }
 });
 
 const port = process.env.PORT || 5000;

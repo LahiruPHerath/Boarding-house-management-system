@@ -4,6 +4,9 @@ const router = express.Router();
 const Request = require("../models/request");
 const BoardingHouse = require("../models/BoardingHouse");
 const { User } = require("../models/user");
+const sendEmail = require("../mail");
+const emailTemplate = require("../mailStyle");
+const paymentSuccessTemplate = require("../paymentSuccess");
 
 const setRequest = async (req, res) => {
   try {
@@ -43,7 +46,7 @@ const getHolderRequest = async (req, res) => {
       boardingHouse: { $in: boardingHouseIds },
     })
       .populate("boardingHouse")
-      .populate("user"); // Ensure the field name matches the schema
+      .populate("user");
 
     res.status(201).json(holderRequest);
   } catch (error) {
@@ -59,12 +62,85 @@ const getUserRequest = async (req, res) => {
     }
 
     const holderRequest = await Request.find({ user: req.user._id })
-      .populate("boardingHouse")
-      .populate("user"); // Ensure the field name matches the schema
+      .populate({
+        path: "boardingHouse",
+        populate: {
+          path: "user",
+          model: "user",
+          select: "contactNumber",
+        },
+      })
+      .populate("user");
 
     res.status(201).json(holderRequest);
   } catch (error) {
     console.error("Error fetching requests:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const handlePayment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { amount } = req.body;
+
+    const request = await Request.findById(id)
+      .populate({
+        path: "boardingHouse",
+        populate: {
+          path: "user",
+          model: "user",
+          select: "email",
+        },
+      })
+      .populate("user");
+    if (!request) {
+      return res.status(404).json({ message: "Request not found" });
+    }
+
+    // Process the payment (pseudo code)
+    const paymentSuccessful = true; // Replace with actual payment processing logic
+
+    if (paymentSuccessful) {
+      request.totalPrice -= amount;
+      request.pricePerMonth = amount;
+      await request.save();
+
+      const userEmail = request.user.email;
+      const holderEmail = request.boardingHouse.user.email;
+
+      // Get the current month
+      const monthNames = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+      ];
+      const currentMonth = monthNames[new Date().getMonth()];
+
+      const emailContent = paymentSuccessTemplate(
+        request.pricePerMonth,
+        request.boardingHouse.name,
+        currentMonth
+      );
+
+      sendEmail(userEmail, "Payment Successful", emailContent);
+      sendEmail(holderEmail, "Payment Successful", emailContent);
+
+      res.json(request);
+    } else {
+      res.status(400).json({ message: "Payment failed" });
+    }
+  } catch (error) {
+    console.error("Error processing payment:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -92,9 +168,51 @@ const updateRequest = async (req, res) => {
   }
 };
 
+const sendPaymentReminder = async (req, res) => {
+  try {
+    const request = await Request.findById(req.params.id)
+      .populate("user")
+      .populate("boardingHouse");
+    if (!request) {
+      return res.status(404).json({ message: "Request not found" });
+    }
+
+    const monthNames = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+    const currentMonth = monthNames[new Date().getMonth()];
+
+    const userEmail = request.user.email;
+    const emailText = emailTemplate(
+      request.totalPrice,
+      request.boardingHouse.name,
+      currentMonth
+    );
+
+    await sendEmail(userEmail, "Payment Reminder", emailText);
+    res.status(200).json({ message: "Reminder email sent successfully" });
+  } catch (error) {
+    console.error("Error sending reminder email:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 module.exports = {
   setRequest,
   getHolderRequest,
   updateRequest,
   getUserRequest,
+  handlePayment,
+  sendPaymentReminder,
 };

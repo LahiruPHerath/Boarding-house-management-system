@@ -7,6 +7,9 @@
     "@devexpress/dx-react-scheduler-material-ui": "^4.0.8",
     "@fortawesome/free-solid-svg-icons": "^6.5.2",
     "@fortawesome/react-fontawesome": "^0.2.2",
+    "@googlemaps/js-api-loader": "^1.16.6",
+    "@googlemaps/markerclusterer": "^2.5.3",
+    "@react-google-maps/api": "^2.19.3",
     "@reduxjs/toolkit": "^2.2.5",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
@@ -35,6 +38,7 @@
     "react-spinners": "^0.13.8",
     "react-toastify": "^10.0.5",
     "socket.io-client": "^4.7.5",
+    "sweetalert2": "^11.12.4",
     "swiper": "^11.1.4",
     "web-vitals": "^2.1.4"
   },
