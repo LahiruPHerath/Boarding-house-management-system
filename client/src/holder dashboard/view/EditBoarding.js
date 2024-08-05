@@ -64,6 +64,10 @@ const EditBoarding = () => {
       const response = await axios.delete(
         `http://localhost:5000/api/BoardingHouse/${id}`
       );
+      const remainingBoardings = boardings.filter(
+        (boarding) => boarding._id !== id
+      );
+      setBoardings(remainingBoardings);
       toast.success("Deleted Successfully");
     } catch (error) {
       toast.error(error.response ? error.response.data.message : error.message);
