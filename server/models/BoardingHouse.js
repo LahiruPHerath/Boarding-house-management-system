@@ -56,6 +56,10 @@ const boardingHouseSchema = new mongoose.Schema(
       enum: ["Available", "Not available"],
       default: "Available",
     },
+    coordinates: {
+      lat: { type: Number, required: true },
+      lon: { type: Number, required: true },
+    },
   },
   {
     timestamps: true, // Adds createdAt and updatedAt timestamps

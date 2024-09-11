@@ -3,6 +3,8 @@ import axios from "axios";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import ImageGallery from "react-image-gallery";
 import "react-image-gallery/styles/css/image-gallery.css";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import Header from "../components/Header/Header";
@@ -32,8 +34,8 @@ function BoardingHouseDetails() {
           `http://localhost:5000/api/BoardingHouse/specificboarding?id=${_id}`
         );
         setBoardingHouse(response.data);
-        if (response.data.location) {
-          setLocation(response.data.location);
+        if (response.data.coordinates) {
+          setLocation(response.data.coordinates);
         }
         setTotalPrice(response.data.price); // Set initial total price
       } catch (error) {
@@ -80,8 +82,8 @@ function BoardingHouseDetails() {
     }
   };
 
-  const goToVistSchedule = (boardingHouseId) => {
-    navigate(`/vist-schedule/${boardingHouseId}`);
+  const goToVisitSchedule = (boardingHouseId) => {
+    navigate(`/visit-schedule/${boardingHouseId}`);
   };
 
   const goToChatToHolder = (receiverId) => {
@@ -130,6 +132,17 @@ function BoardingHouseDetails() {
     original: image,
     thumbnail: image,
   }));
+
+  const redIcon = new L.Icon({
+    iconUrl:
+      "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x-red.png",
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowUrl:
+      "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+    shadowSize: [41, 41],
+  });
 
   return (
     <>
@@ -209,9 +222,17 @@ function BoardingHouseDetails() {
                     <h2 className="text-2xl text-[#1f3e72] font-bold mb-2">
                       Location
                     </h2>
-                    <div className="w-full h-48 bg-gray-300 rounded-lg map-container">
+                    <div
+                      className="w-full h-48 bg-gray-300 rounded-lg map-container"
+                      onClick={() =>
+                        window.open(
+                          `https://www.openstreetmap.org/?mlat=${location.lat}&mlon=${location.lon}#map=18/${location.lat}/${location.lon}`,
+                          "_blank"
+                        )
+                      }
+                    >
                       <MapContainer
-                        center={[location.lat, location.lng]}
+                        center={[location.lat, location.lon]}
                         zoom={13}
                         scrollWheelZoom={false}
                         style={{ height: "100%", width: "100%" }}
@@ -220,7 +241,10 @@ function BoardingHouseDetails() {
                           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                           attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
                         />
-                        <Marker position={[location.lat, location.lng]}>
+                        <Marker
+                          position={[location.lat, location.lon]}
+                          icon={redIcon}
+                        >
                           <Popup>{boardingHouse.name}</Popup>
                         </Marker>
                       </MapContainer>
