@@ -86,23 +86,41 @@ const AddBoarding = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const url = "http://localhost:5000/api/BoardingHouse/upload";
-    const formDataToSend = new FormData();
-    Object.keys(formData).forEach((key) => {
-      formDataToSend.append(key, formData[key]);
-    });
-    formDataToSend.append("coverImage", coverImage);
-    otherFiles.forEach((file) => {
-      formDataToSend.append("otherFiles", file);
-    });
 
+    // Geocode the address
+    const geocodeUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(formData.address)}&format=json&limit=1`;
     try {
+      const geocodeResponse = await axios.get(geocodeUrl);
+      const location = geocodeResponse.data[0];
+      if (!location) {
+        toast.error("Could not geocode the address. Please check the address.");
+        return;
+      }
+
+      const coordinates = {
+        lat: parseFloat(location.lat),
+        lon: parseFloat(location.lon),
+      };
+
+      // Include coordinates in form data
+      const formDataToSend = new FormData();
+      Object.keys(formData).forEach((key) => {
+        formDataToSend.append(key, formData[key]);
+      });
+      formDataToSend.append("coverImage", coverImage);
+      otherFiles.forEach((file) => {
+        formDataToSend.append("otherFiles", file);
+      });
+      formDataToSend.append("coordinates", JSON.stringify(coordinates));
+
+      const url = "http://localhost:5000/api/BoardingHouse/upload";
       const token = localStorage.getItem("token");
 
       if (!token) {
         console.error("No token found, please login first");
         return;
       }
+
       const response = await axios.post(url, formDataToSend, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -111,7 +129,7 @@ const AddBoarding = () => {
       toast.success("Boarding house created successfully!");
       resetForm();
     } catch (error) {
-      toast.error("Error posting form: " + error.response.data.message);
+      toast.error("Error posting form: " + error.message);
     }
   };
 

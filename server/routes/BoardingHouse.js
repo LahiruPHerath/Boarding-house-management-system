@@ -23,7 +23,9 @@ router.post(
         price,
         university,
         address,
+        coordinates,
       } = req.body;
+
       let coverImageResult = "";
       let otherImagesResults = [];
 
@@ -45,6 +47,9 @@ router.post(
         }
       }
 
+      // Parse coordinates
+      const parsedCoordinates = JSON.parse(coordinates);
+
       // Create a new boarding house entry
       const newBoardingHouse = new BoardingHouse({
         name,
@@ -58,6 +63,7 @@ router.post(
         user: req.user._id,
         address,
         availability: "Available",
+        coordinates: parsedCoordinates,
       });
 
       // Save the boarding house to database
@@ -176,6 +182,7 @@ router.put(
         price: req.body.price,
         university: req.body.university,
         address: req.body.address,
+        coordinates: JSON.parse(req.body.coordinates),
       };
 
       // Update cover image if provided

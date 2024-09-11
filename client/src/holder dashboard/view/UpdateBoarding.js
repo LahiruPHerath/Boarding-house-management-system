@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -11,6 +11,7 @@ const UpdateBoarding = () => {
   const [coverImageUrl, setCoverImageUrl] = useState("");
   const [otherFiles, setOtherFiles] = useState([]);
   const [otherFilesUrls, setOtherFilesUrls] = useState([]);
+  const navigate = useNavigate();
 
   // Fetch data from the backend
   useEffect(() => {
@@ -102,6 +103,22 @@ const UpdateBoarding = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    // Geocode the address
+    const geocodeUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(formData.address)}&format=json&limit=1`;
+
+    const geocodeResponse = await axios.get(geocodeUrl);
+    const location = geocodeResponse.data[0];
+    if (!location) {
+      toast.error("Could not geocode the address. Please check the address.");
+      return;
+    }
+
+    const coordinates = {
+      lat: parseFloat(location.lat),
+      lon: parseFloat(location.lon),
+    };
+
+    // Include coordinates in form data
     const formDataToSend = new FormData();
     Object.keys(formData).forEach((key) => {
       formDataToSend.append(key, formData[key]);
@@ -115,7 +132,7 @@ const UpdateBoarding = () => {
     otherFiles.forEach((file) => {
       formDataToSend.append("otherFiles", file);
     });
-
+    formDataToSend.append("coordinates", JSON.stringify(coordinates));
     try {
       const response = await axios.put(
         `http://localhost:5000/api/BoardingHouse/update-boarding/${id}`,
@@ -125,6 +142,7 @@ const UpdateBoarding = () => {
         }
       );
       toast.success("Boarding house updated successfully!");
+      navigate("/holder-dashboard/edit-boarding");
 
       if (response.data && response.data.boardingHouse) {
         console.log(response.data.boardingHouse.otherImages); // Ensure you have the correct data
