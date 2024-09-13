@@ -48,7 +48,7 @@ const VisitSchedule = ({ boardingHouseId }) => {
       toast.success("Visit scheduled successfully!");
     } catch (error) {
       console.error("Error scheduling visit:", error);
-      toast.error("Failed to schedule visit.");
+      toast.warning("Required an account.");
     }
   };
 

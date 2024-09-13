@@ -23,7 +23,9 @@ const Login = () => {
 
       // Redirect based on role using appropriate methods
       if (res.user.role === "holder") {
-        window.location.href = "holder-dashboard"; // Correct usage for external redirection
+        window.location.href = "holder-dashboard/dashboard";
+      } else if (res.user.role === "admin") {
+        window.location.href = "admin-dashboard";
       } else {
         navigate("/"); // Navigate internally to the homepage for 'user' role
       }

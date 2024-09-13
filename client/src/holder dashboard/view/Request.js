@@ -156,14 +156,16 @@ const Request = () => {
                   <td className="py-1 px-4 font-medium whitespace-nowrap">
                     {monthlyPayment(request)}
                   </td>
-                  <td className="py-1 px-4 font-medium whitespace-nowrap">
-                    <button
-                      onClick={() => sendPaymentReminder(request._id)}
-                      className="px-2 py-1 bg-blue-500 text-white rounded-md"
-                    >
-                      Send Reminder
-                    </button>
-                  </td>
+                  {request.status === "accept" && request.totalPrice !== 0 ? (
+                    <td className="py-1 px-4 font-medium whitespace-nowrap">
+                      <button
+                        onClick={() => sendPaymentReminder(request._id)}
+                        className="px-2 py-1 bg-blue-500 text-white rounded-md"
+                      >
+                        Send Reminder
+                      </button>
+                    </td>
+                  ) : null}
                 </tr>
               ))}
             </tbody>

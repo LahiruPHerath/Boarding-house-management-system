@@ -8,6 +8,7 @@ import {
   BiEdit,
   BiHomeCircle,
   BiArrowToRight,
+  BiPlusCircle,
 } from "react-icons/bi";
 import { MdEventAvailable } from "react-icons/md";
 
@@ -70,10 +71,19 @@ function Sidebar() {
       <ul className="list-none m-0 p-0">
         <li>
           <button
+            onClick={() => navigateTo("/holder-dashboard/dashboard")}
+            className={`flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-gray-200 transition-colors w-full text-left ${isActive("/holder-dashboard/dashboard")}`}
+          >
+            <BiHomeCircle size={24} />
+            <span>Dashboard</span>
+          </button>
+        </li>
+        <li>
+          <button
             onClick={() => navigateTo("/holder-dashboard/add-boarding")}
             className={`flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-gray-200 transition-colors w-full text-left ${isActive("/holder-dashboard/add-boarding")}`}
           >
-            <BiHomeCircle size={24} />
+            <BiPlusCircle size={24} />
             <span>Add Boarding House</span>
           </button>
         </li>

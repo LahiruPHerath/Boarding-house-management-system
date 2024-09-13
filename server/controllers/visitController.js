@@ -66,12 +66,30 @@ const getUserVisit = async (req, res) => {
 };
 
 const updateVisit = async (req, res) => {
-  const { status } = req.body;
+  const { status, rejectionReason } = req.body; // Accept rejectionReason from the request body
   const { id } = req.params;
+
   try {
     const visitAppointments = await Visit.findById(id);
+
+    if (!visitAppointments) {
+      return res.status(404).json({ message: "Visit not found" });
+    }
+
     visitAppointments.status = status;
+
+    // Only update the rejection reason if the status is "reject"
+    if (status === "reject") {
+      if (!rejectionReason) {
+        return res
+          .status(400)
+          .json({ message: "Rejection reason is required" });
+      }
+      visitAppointments.rejectionReason = rejectionReason;
+    }
+
     await visitAppointments.save();
+    res.status(200).json({ message: "Visit updated successfully" });
   } catch (error) {
     console.error("Error updating request status:", error);
     res.status(500).json({ message: "Internal server error" });
