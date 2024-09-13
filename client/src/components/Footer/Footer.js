@@ -8,14 +8,14 @@ const Footer = () => {
         <div className="flexColStart f-left">
           <img src="./logo2.png" alt="" width={120} />
           <span className="secondaryText">
-            Our vision is to make all people <br />
-            the best place to live for them.
+            Our vision is to connect university students with <br />
+            the best boarding options.
           </span>
         </div>
 
         <div className="flexColStart f-right">
-          <span className="primaryText">Information</span>
-          <span className="secondaryText">Waymba University of Sri Lanka</span>
+          <span className="primaryText">Campus බෝඩිම</span>
+          <span className="secondaryText">Produced by WUSL - Group 10</span>
           <div className="flexCenter f-menu">
             <span>Property</span>
             <span>Services</span>

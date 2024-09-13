@@ -33,7 +33,7 @@ const Header = () => {
         {/* logo */}
         <div>
           <Link to="/" className="text-xl font-bold text-white no-underline">
-            Boarding Management System
+            Campus බෝඩිම
           </Link>
         </div>
 
@@ -67,8 +67,8 @@ const Header = () => {
           >
             FAQ
           </Link>
-          <Link
-            to="/about"
+          <a
+            href="#value"
             className={`p-2 ${
               pathname === "/about"
                 ? "text-white"
@@ -76,9 +76,9 @@ const Header = () => {
             } no-underline`}
           >
             About
-          </Link>
-          <Link
-            to="/contact"
+          </a>
+          <a
+            href="#contact-us"
             className={`p-2 ${
               pathname === "/contact"
                 ? "text-white"
@@ -86,7 +86,7 @@ const Header = () => {
             } no-underline`}
           >
             Contact
-          </Link>
+          </a>
           {user ? (
             <button
               className="flex items-center p-2 text-white no-underline"
@@ -138,13 +138,9 @@ const Header = () => {
           >
             FAQ
           </Link>
-          <Link
-            to="/about"
-            className="block py-2 no-underline"
-            onClick={() => setMenuOpened(false)}
-          >
+          <a href="#value" className="block py-2 no-underline">
             About
-          </Link>
+          </a>
           <Link
             to="/contact"
             className="block py-2 no-underline"

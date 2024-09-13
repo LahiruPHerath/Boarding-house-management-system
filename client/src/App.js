@@ -27,11 +27,19 @@ import VisitSchedule from "./pages/VisitSchedule";
 import VisitAppointments from "./holder dashboard/view/VisitAppointments";
 import UserVisits from "./pages/user dashboard/UserVisits";
 import ChatToHolder from "./pages/ChatToHolder";
+import AdminLayout from "./admin dashboard/components/AdminLayout";
+import ManageBoardings from "./admin dashboard/views/ManageBoardings";
+import ManageUsers from "./admin dashboard/views/ManageUsers";
+import ManageReviews from "./admin dashboard/views/ManageReviews";
+import FAQ from "./pages/FAQ";
+import Dashboard from "./holder dashboard/view/Dashboard";
 
 const isAuthenticated = true; // Replace with actual authentication status
 const userRole = localStorage.getItem("role");
 
 const ProtectedRoute = ({ element: Element, allowedRoles }) => {
+  console.log(allowedRoles);
+
   return isAuthenticated && allowedRoles.includes(userRole) ? (
     <Element />
   ) : (
@@ -61,6 +69,7 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/allboardings" element={<AllBoardings />} />
         <Route path="/reviews/:_id" element={<ReviewsPage />} />
+        <Route path="faq" element={<FAQ />} />
         <Route
           path="/vist-schedule/:boardingHouseId"
           element={<VisitSchedule />}
@@ -78,6 +87,7 @@ function App() {
             <ProtectedRoute element={MainLayout} allowedRoles={["holder"]} />
           }
         >
+          <Route path="dashboard" element={<Dashboard />} />
           <Route path="add-boarding" element={<AddBoarding />} />
           <Route path="edit-boarding" element={<EditBoarding />} />
           <Route path="request" element={<Request />} />
@@ -85,6 +95,16 @@ function App() {
           <Route path="update-boarding/:id" element={<UpdateBoarding />} />
           <Route path="chat/:receiverId" element={<Chat />} />
           <Route path="profile/:id" element={<Profile />} />
+        </Route>
+        <Route
+          path="/admin-dashboard"
+          element={
+            <ProtectedRoute element={AdminLayout} allowedRoles={["admin"]} />
+          }
+        >
+          <Route path="manage-boardings" element={<ManageBoardings />} />
+          <Route path="manage-users" element={<ManageUsers />} />
+          <Route path="manage-reviews" element={<ManageReviews />} />
         </Route>
       </Routes>
     </BrowserRouter>

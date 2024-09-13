@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import io from "socket.io-client";
+import "../../pages/Chat.css";
 
 const socket = io("http://localhost:5000");
 
@@ -13,7 +14,6 @@ const Chat = () => {
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    // Fetch messages
     const fetchMessages = async () => {
       try {
         const response = await axios.get(`/api/message/${receiverId}`, {
@@ -29,15 +29,12 @@ const Chat = () => {
 
     fetchMessages();
 
-    // Join the chat room
     socket.emit("joinRoom", { senderId: userId, receiverId });
 
-    // Listen for incoming messages
     socket.on("receiveMessage", (message) => {
       setMessages((prevMessages) => [...prevMessages, message]);
     });
 
-    // Cleanup on component unmount
     return () => {
       socket.off("receiveMessage");
     };
@@ -54,36 +51,57 @@ const Chat = () => {
           },
         }
       );
-      // Emit the message via socket
       socket.emit("sendMessage", response.data);
-
-      // Optimistically update the message list
       setMessages((prevMessages) => [...prevMessages, response.data]);
       setNewMessage("");
     } catch (error) {
       console.error("Error sending message:", error);
     }
   };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  const formatMessage = (message) => {
+    return message.split("\n").map((line, index) => (
+      <React.Fragment key={index}>
+        {line}
+        <br />
+      </React.Fragment>
+    ));
+  };
+
   return (
-    <div>
-      <h2>Chat with User</h2>
+    <div className="chat-container">
+      <div className="chat-header">
+        <h2>Chat with User</h2>
+      </div>
       <div className="chat-box">
         {messages.map((msg) => (
           <div
             key={msg._id}
-            className={`message ${msg.senderId === userId ? "sent" : "received"}`}
+            className={`message ${msg.senderId === receiverId ? "sent" : "received"}`}
           >
-            {msg.message}
+            {formatMessage(msg.message)}
           </div>
         ))}
       </div>
-      <input
-        type="text"
-        value={newMessage}
-        onChange={(e) => setNewMessage(e.target.value)}
-        placeholder="Type your message..."
-      />
-      <button onClick={handleSendMessage}>Send</button>
+      <div className="input-container">
+        <textarea
+          value={newMessage}
+          onChange={(e) => setNewMessage(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Type a message"
+          className="message-input"
+        />
+        <button onClick={handleSendMessage} className="send-button">
+          Send
+        </button>
+      </div>
     </div>
   );
 };

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link, useParams } from "react-router-dom";
 import universities from "../data/UniData";
+import Header from "../components/Header/Header";
+import Footer from "../components/Footer/Footer";
 
 function UniversityPage() {
   let { id } = useParams();
@@ -61,65 +63,99 @@ function UniversityPage() {
     );
   };
 
+  const truncateText = (text, maxLength) => {
+    if (text.length > maxLength) {
+      return text.slice(0, maxLength) + "...";
+    }
+    return text;
+  };
+
   return (
-    <div className="p-4 bg-gray-50 min-h-screen">
-      {university ? (
-        <h2 className="text-3xl font-bold text-gray-800 my-6 text-center">
-          Boarding Houses near {university.name}
-        </h2>
-      ) : (
-        <h2 className="text-3xl font-bold text-red-500 text-center my-6">
-          University not found
-        </h2>
-      )}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  justify-center gap-6">
-        {boardings.length > 0 ? (
-          boardings.map((bh) => (
-            <div
-              key={bh._id}
-              className="flex flex-col md:flex-row bg-white border-2 hover:border-blue-300 shadow-md hover:shadow-xl transition-shadow duration-300 rounded-lg overflow-hidden h-full"
-            >
-              <div className="w-2/5">
-                <img
-                  src={bh.coverImage || "path/to/default/image.jpg"}
-                  alt={bh.name}
-                  className="w-60 h-full object-cover"
-                />
-              </div>
-              <div className="md:w-3/5 p-4 flex flex-col justify-between">
-                <Link
-                  to={`/boarding/${bh._id}`}
-                  className="no-underline text-gray-900"
+    <>
+      <Header />
+      <div className="flex">
+        <div className="flex-1 container pr-60 pl-60 pt-4 pb-4 bg-gray-50 min-h-screen">
+          {university ? (
+            <h2 className="text-3xl font-bold text-gray-800 my-6 text-center">
+              Boarding Houses near {university.name}
+            </h2>
+          ) : (
+            <h2 className="text-3xl font-bold text-red-500 text-center my-6">
+              University not found
+            </h2>
+          )}
+
+          <div className="grid grid-cols-1 gap-8">
+            {boardings.length > 0 ? (
+              boardings.map((bh) => (
+                <div
+                  key={bh._id}
+                  className="flex flex-col md:flex-row bg-white border-2 hover:border-blue-300 shadow-md hover:shadow-xl transition-shadow duration-300 rounded-lg overflow-hidden min-h-[160px]"
                 >
-                  <h3 className="text-xl font-bold mb-2  text-blue-600  hover:text-black">
-                    {bh.name}
-                  </h3>
-                </Link>
-                <p className="text-sm text-gray-500 mb-1">
-                  Distance: {bh.distance} km from {university.name}
-                </p>
-                <p className="text-sm text-gray-700 mb-3">{bh.description}</p>
-                {/* Placeholder for review system */}
-                <div className="flex items-center">
-                  <span className="text-yellow-400 text-lg">
-                    {renderStars(
-                      calculateAverageRating(
-                        bh.reviews?.map((review) => review.rating)
-                      )
-                    )}
-                  </span>
-                  <span className="ml-2 text-sm text-gray-600">
-                    ({bh.reviews ? bh.reviews.length : 0} reviews)
-                  </span>
+                  <div className="w-60 h-full flex-shrink-0">
+                    <img
+                      src={bh.coverImage || "path/to/default/image.jpg"}
+                      alt={bh.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="md:flex-1 p-4 flex flex-col justify-between">
+                    <Link
+                      to={`/boarding/${bh._id}`}
+                      className="no-underline text-gray-900"
+                    >
+                      <h3 className="text-2xl font-bold mb-2 text-blue-600 hover:text-black">
+                        {bh.name}
+                      </h3>
+                    </Link>
+                    <p className="text-sm text-[#1f3e72] mb-1">
+                      Distance: {bh.distance} km from {university.name}
+                    </p>
+                    <p className="text-sm text-gray-700 mb-3">
+                      {truncateText(bh.description, 100)}
+                    </p>
+                    <div className="flex items-center">
+                      <span className="text-yellow-400 text-lg">
+                        {renderStars(
+                          calculateAverageRating(
+                            bh.reviews?.map((review) => review.rating)
+                          )
+                        )}
+                      </span>
+                      <span className="ml-2 text-sm text-gray-600">
+                        ({bh.reviews ? bh.reviews.length : 0} reviews)
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-700 mt-3">
+                      Price: Rs {bh.price} Per Month
+                    </p>
+                    <p className="text-sm text-gray-700 mt-3">
+                      This is for {bh.gender} students
+                    </p>
+                    <p
+                      className={`text-sm mt-3 ${
+                        bh.availability === "Available"
+                          ? "text-green-500"
+                          : "text-red-500"
+                      }`}
+                    >
+                      {bh.availability === "Available"
+                        ? "Available"
+                        : "Not Available"}
+                    </p>
+                  </div>
                 </div>
+              ))
+            ) : (
+              <div className="text-gray-600 text-lg">
+                No boarding houses found.
               </div>
-            </div>
-          ))
-        ) : (
-          <div className="text-gray-600 text-lg">No boarding houses found.</div>
-        )}
+            )}
+          </div>
+        </div>
       </div>
-    </div>
+      <Footer />
+    </>
   );
 }
 

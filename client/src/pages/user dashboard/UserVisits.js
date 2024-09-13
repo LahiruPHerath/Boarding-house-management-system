@@ -1,8 +1,11 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const UserVisits = () => {
   const [visits, setVisits] = useState([]);
+  const navigate = useNavigate();
+
   const token = localStorage.getItem("token");
   const config = {
     headers: {
@@ -25,6 +28,10 @@ const UserVisits = () => {
     fetchVisits();
   }, []);
 
+  const goToChatToHolder = (receiverId) => {
+    navigate(`/chat-holder/${receiverId}`);
+  };
+
   return (
     <div className="px-2 lg:px-7 pt-5">
       <div className="w-full p-4 bg-white rounded-md">
@@ -32,27 +39,33 @@ const UserVisits = () => {
           <table className="w-full text-sm text-left text-black">
             <thead className="text-sm text-black uppercase border-b-2 border-blue-700">
               <tr>
-                <th scope="col" className="py-3">
+                <th scope="col" className="py-3 px-3 ">
                   No
                 </th>
-                <th scope="col" className="py-3">
+                <th scope="col" className="py-3 px-3">
                   Boarding House Name
                 </th>
-                <th scope="col" className="py-3 pl-5">
+                <th scope="col" className="py-3 px-3">
                   Image
                 </th>
-                <th scope="col" className="py-3">
+                <th scope="col" className="py-3 px-3">
                   Holder Contact Number
                 </th>
-                <th scope="col" className="py-3">
+                <th scope="col" className="py-3 px-3">
                   Appointed Date
                 </th>
-                <th scope="col" className="py-3">
+                <th scope="col" className="py-3 px-3">
                   Appointed Time
                 </th>
-                <th scope="col" className="py-3 pl-6">
-                  Action
+                <th scope="col" className="py-3 px-3">
+                  Status
                 </th>
+
+                <th scope="col" className="py-3 px-5">
+                  Rejection Reason
+                </th>
+
+                {/* New column */}
               </tr>
             </thead>
             <tbody>
@@ -62,7 +75,7 @@ const UserVisits = () => {
                     {index + 1}
                   </td>
                   <td className="py-1 px-4 font-medium whitespace-nowrap">
-                    <span>{visit.boardingHouse.name}</span>
+                    {visit.boardingHouse.name}
                   </td>
                   <td className="py-1 px-4 font-medium whitespace-nowrap">
                     <img
@@ -72,15 +85,13 @@ const UserVisits = () => {
                     />
                   </td>
                   <td className="py-1 px-4 font-medium whitespace-nowrap">
-                    <span>
-                      {visit.boardingHouse?.user?.contactNumber || "N/A"}
-                    </span>
+                    {visit.boardingHouse?.user?.contactNumber || "N/A"}
                   </td>
                   <td className="py-1 px-4 font-medium whitespace-nowrap">
-                    <span>{visit.date}</span>
+                    {visit.date}
                   </td>
                   <td className="py-1 px-4 font-medium whitespace-nowrap">
-                    <span>{visit.time}</span>
+                    {visit.time}
                   </td>
                   <td className="py-1 px-4 font-medium whitespace-nowrap">
                     {visit.status === "accept" ? (
@@ -91,6 +102,22 @@ const UserVisits = () => {
                       <span className="text-black">Pending</span>
                     )}
                   </td>
+                  <td className="py-1 px-4 font-medium whitespace-nowrap">
+                    {visit.status === "reject" ? (
+                      <span>
+                        {visit.rejectionReason || "No reason provided"} <br />
+                        <span
+                          className="text-blue-700 font-semibold underline cursor-pointer"
+                          onClick={() => {
+                            goToChatToHolder(visit.boardingHouse.user._id);
+                          }}
+                        >
+                          click here to further contact the holder
+                        </span>
+                      </span>
+                    ) : null}
+                  </td>{" "}
+                  {/* Display rejection reason only if rejected */}
                 </tr>
               ))}
             </tbody>

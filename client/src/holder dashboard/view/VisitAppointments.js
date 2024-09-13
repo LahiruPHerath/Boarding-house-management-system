@@ -10,6 +10,9 @@ import "react-toastify/dist/ReactToastify.css";
 const VisitAppointments = () => {
   const [visits, setVisits] = useState([]);
   const token = localStorage.getItem("token");
+  const [rejectingVisitId, setRejectingVisitId] = useState(null);
+  const [rejectionReason, setRejectionReason] = useState("");
+
   const config = {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -52,20 +55,26 @@ const VisitAppointments = () => {
   };
 
   const handleReject = async (visitId) => {
+    if (!rejectionReason.trim()) {
+      toast.error("Please provide a reason for rejection.");
+      return;
+    }
+
     try {
       await axios.put(
         `http://localhost:5000/api/visit/${visitId}`,
-        { status: "reject" },
+        { status: "reject", rejectionReason }, // Send rejection reason
         config
       );
       setVisits((prevVisits) => {
         const updatedVisits = prevVisits.map((visit) =>
           visit._id === visitId ? { ...visit, status: "reject" } : visit
         );
-        console.log("Updated visits:", updatedVisits);
         return updatedVisits;
       });
-      toast.success("Rejected the request");
+      toast.success("Rejected the request with reason");
+      setRejectingVisitId(null); // Close the rejection reason input
+      setRejectionReason(""); // Clear the reason input
     } catch (error) {
       toast.error(error.response ? error.response.data.message : error.message);
     }
@@ -136,7 +145,7 @@ const VisitAppointments = () => {
                       <span className="text-red-700">Rejected</span>
                     ) : (
                       <>
-                        <button className="">
+                        <button>
                           <IoCheckmarkCircleOutline
                             size={24}
                             className="text-green-700 hover:bg-green-600 rounded-full "
@@ -145,10 +154,28 @@ const VisitAppointments = () => {
                         </button>
                         <button
                           className="ml-4 text-red-500 hover:bg-red-400 hover:text-red-900 rounded-full"
-                          onClick={() => handleReject(visit._id)}
+                          onClick={() => setRejectingVisitId(visit._id)}
                         >
                           <IoCloseCircleOutline size={24} />
                         </button>
+                        {rejectingVisitId === visit._id && (
+                          <div className="mt-2">
+                            <textarea
+                              className="w-full p-2 border border-gray-400 rounded"
+                              placeholder="Reason for rejection"
+                              value={rejectionReason}
+                              onChange={(e) =>
+                                setRejectionReason(e.target.value)
+                              }
+                            />
+                            <button
+                              className="mt-2 bg-red-500 text-white px-4 py-2 rounded"
+                              onClick={() => handleReject(visit._id)}
+                            >
+                              Submit Reason
+                            </button>
+                          </div>
+                        )}
                       </>
                     )}
                   </td>

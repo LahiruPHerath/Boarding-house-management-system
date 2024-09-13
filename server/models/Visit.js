@@ -24,6 +24,9 @@ const visitSchema = new mongoose.Schema({
     enum: ["pending", "accept", "reject"],
     default: "pending",
   },
+  rejectionReason: {
+    type: String,
+  },
 });
 
 const Visit = mongoose.model("Visit", visitSchema);

@@ -161,6 +161,7 @@ const AllBoardings = () => {
                     <p className="text-sm text-gray-700 mt-3">
                       Price: Rs {bh.price} Per Month
                     </p>
+
                     <p className="text-sm text-gray-700 mt-3">
                       This is for {bh.gender} students
                     </p>

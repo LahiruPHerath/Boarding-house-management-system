@@ -26,6 +26,15 @@ function BoardingHouseDetails() {
   const [reviews, setReviews] = useState([]);
   const [lastThreeReviews, setLastThreeReviews] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
+  const [averageRating, setAverageRating] = useState(0);
+  const getCommentForRating = (rating) => {
+    if (rating >= 4.5) return "Very Good";
+    if (rating >= 3) return "Good";
+    if (rating >= 2) return "Average";
+    if (rating >= 1) return "Poor";
+    if (rating >= 0) return "Pending";
+    return "Very Poor";
+  };
 
   useEffect(() => {
     const fetchBoardingHouse = async () => {
@@ -118,6 +127,15 @@ function BoardingHouseDetails() {
         );
         setReviews(response.data);
         setLastThreeReviews(response.data.slice(-3));
+
+        // Calculate the average rating
+        const totalRating = response.data.reduce(
+          (acc, review) => acc + review.rating,
+          0
+        );
+        const avgRating =
+          response.data.length > 0 ? totalRating / response.data.length : 0;
+        setAverageRating(avgRating.toFixed(1)); // Keep one decimal place
       } catch (error) {
         console.error("Error fetching reviews:", error);
       }
@@ -183,10 +201,10 @@ function BoardingHouseDetails() {
                   <div className="bg-white border p-6 rounded-lg">
                     <div className="flex items-center">
                       <span className="text-2xl font-bold text-blue-500">
-                        8.2
+                        {averageRating}
                       </span>
                       <span className="text-lg text-[#1f3e72] ml-2">
-                        Very Good
+                        {getCommentForRating(averageRating)}
                       </span>
                     </div>
                     <p className="text-sm text-[#1f3e72]">
@@ -253,6 +271,15 @@ function BoardingHouseDetails() {
                 </div>
               </div>
 
+              <div className="bg-white border p-6 rounded-lg mb-6 mt-4 h-64 overflow-y-auto ">
+                <h3 className="text-2xl text-[#1f3e72] font-bold border-b-2 pb-2 mb-2 border-gray-200 ">
+                  Description
+                </h3>
+                <p className="bg-gray-100 p-auto rounded-lg m-auto">
+                  {boardingHouse.description}
+                </p>
+              </div>
+
               <div className="grid gap-4 grid-cols-2 ">
                 <div className="bg-white border p-6 rounded-lg mb-6">
                   <VisitSchedule boardingHouseId={boardingHouse._id} />
@@ -298,14 +325,6 @@ function BoardingHouseDetails() {
                     </form>
                   </div>
                 </div>
-              </div>
-              <div className="bg-white border p-6 rounded-lg mb-6 mt-4 h-64 overflow-y-auto ">
-                <h3 className="text-2xl text-[#1f3e72] font-bold border-b-2 pb-2 mb-2 border-gray-200 ">
-                  Description
-                </h3>
-                <p className="bg-gray-100 p-auto rounded-lg m-auto">
-                  {boardingHouse.description}
-                </p>
               </div>
 
               <div className="fixed bottom-8 right-6">
