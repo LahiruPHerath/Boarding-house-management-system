@@ -1,10 +1,11 @@
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./App.css";
 
+// Import pages and components
 import HomePage from "./pages/Home";
 import UniversityPage from "./pages/UniversityPage";
 import BoardingHouseDetails from "./pages/BoardingHouseDetails";
@@ -28,11 +29,11 @@ import VisitAppointments from "./holder dashboard/view/VisitAppointments";
 import UserVisits from "./pages/user dashboard/UserVisits";
 import ChatToHolder from "./pages/ChatToHolder";
 import AdminLayout from "./admin dashboard/components/AdminLayout";
+import MessageList from "./holder dashboard/view/SenderList";
 
 import ManageBoardings from "./admin dashboard/views/ManageBoardings";
 import ManageUsers from "./admin dashboard/views/ManageUsers";
 import ManageReviews from "./admin dashboard/views/ManageReviews";
-
 
 const isAuthenticated = true; // Replace with actual authentication status
 const userRole = localStorage.getItem("role");
@@ -67,42 +68,38 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/allboardings" element={<AllBoardings />} />
         <Route path="/reviews/:_id" element={<ReviewsPage />} />
-        <Route
-          path="/vist-schedule/:boardingHouseId"
-          element={<VisitSchedule />}
-        />
+        <Route path="/visit-schedule/:boardingHouseId" element={<VisitSchedule />} />
         <Route path="/chat-holder/:receiverId" element={<ChatToHolder />} />
+        
+        {/* User Dashboard Routes */}
         <Route path="/user-dashboard" element={<UserDashboard />}>
           <Route path="user-profile/:id" element={<UserProfile />} />
           <Route path="user-review/:boardingHouseId" element={<UserReview />} />
           <Route path="user-request" element={<UserRequest />} />
           <Route path="user-visit" element={<UserVisits />} />
         </Route>
-        <Route
-          path="/holder-dashboard"
-          element={
-            <ProtectedRoute element={MainLayout} allowedRoles={["holder"]} />
-          }
-        >
+        
+        {/* Holder Dashboard Routes */}
+        <Route path="/holder-dashboard" element={<ProtectedRoute element={MainLayout} allowedRoles={["holder"]} />}>
           <Route path="add-boarding" element={<AddBoarding />} />
           <Route path="edit-boarding" element={<EditBoarding />} />
+          <Route path="update-boarding/:id" element={<UpdateBoarding />} />
           <Route path="request" element={<Request />} />
           <Route path="visit" element={<VisitAppointments />} />
-          <Route path="update-boarding/:id" element={<UpdateBoarding />} />
           <Route path="chat/:receiverId" element={<Chat />} />
           <Route path="profile/:id" element={<Profile />} />
+          <Route path="message-list" element={<MessageList />} />
+        </Route>
+        
+        {/* Admin Dashboard Routes */}
+        <Route path="/admin-dashboard" element={<AdminLayout />}>
           <Route path="manage-boardings" element={<ManageBoardings />} />
           <Route path="manage-users" element={<ManageUsers />} />
           <Route path="manage-reviews" element={<ManageReviews />} />
         </Route>
-        <Route
-          path="/admin-dashboard"
-          element={<AdminLayout />}
-        >
-          <Route path="manage-boardings" element={<ManageBoardings />} />
-          <Route path="manage-users" element={<ManageUsers />} />
-          <Route path="manage-reviews" element={<ManageReviews />} />
-        </Route>
+        
+        {/* Catch-all route for undefined paths */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );

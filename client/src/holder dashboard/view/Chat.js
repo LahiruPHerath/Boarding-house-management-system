@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import io from "socket.io-client";
 import '../../styles/Chat.css';
@@ -8,12 +8,20 @@ const socket = io("http://localhost:5000");
 
 const Chat = () => {
   const { receiverId } = useParams();
+  const navigate = useNavigate();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
-  const userId = "currentUserId"; // Replace with the actual user ID logic
+  const [receiverName, setReceiverName] = useState("");
+  
+  const userId = localStorage.getItem("userId"); // Replace with actual user ID logic
   const token = localStorage.getItem("token");
 
   useEffect(() => {
+    if (!receiverId) {
+      console.error("receiverId is undefined. Check the route and params.");
+      return;
+    }
+
     const fetchMessages = async () => {
       try {
         const response = await axios.get(`/api/message/${receiverId}`, {
@@ -27,7 +35,26 @@ const Chat = () => {
       }
     };
 
+    const fetchReceiverDetails = async () => {
+      try {
+        const response = await axios.get(`/api/user/${receiverId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (response.data && response.data.firstName && response.data.lastName) {
+          const { firstName, lastName } = response.data;
+          setReceiverName(`${firstName} ${lastName}`);
+        } else {
+          console.warn("Unexpected response format for user details");
+        }
+      } catch (error) {
+        console.error("Error fetching receiver details:", error);
+      }
+    };
+
     fetchMessages();
+    fetchReceiverDetails();
 
     socket.emit("joinRoom", { senderId: userId, receiverId });
 
@@ -44,7 +71,7 @@ const Chat = () => {
     try {
       const response = await axios.post(
         `/api/message/send/${receiverId}`,
-        { message: newMessage },
+        { message: newMessage, senderId: userId },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -78,13 +105,16 @@ const Chat = () => {
   return (
     <div className="chat-container">
       <div className="chat-header">
-        <h2>Chat with User</h2>
+        <button className="back-button" onClick={() => navigate('/holder-dashboard/message-list')}>
+          ←
+        </button>
+        <h2>Chat with {receiverName || "User"}</h2>
       </div>
       <div className="chat-box">
         {messages.map((msg) => (
           <div
             key={msg._id}
-            className={`message ${msg.senderId === receiverId ? "sent" : "received"}`}
+            className={`message ${msg.senderId === userId ? "sent" : "received"}`}
           >
             {formatMessage(msg.message)}
           </div>

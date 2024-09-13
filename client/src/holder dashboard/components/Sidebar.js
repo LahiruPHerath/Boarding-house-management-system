@@ -106,7 +106,7 @@ function Sidebar() {
         </li>
         <li>
           <button
-            onClick={() => navigateTo(`/holder-dashboard/chat/${user._id}`)}
+            onClick={() => navigateTo(`/holder-dashboard/message-list`)}
             className={`flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-gray-200 transition-colors w-full text-left ${isActive(`/holder-dashboard/chat/${user._id}`)}`}
           >
             <BiMessageSquareDetail size={24} />
